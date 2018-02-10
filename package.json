@@ -35,6 +35,6 @@
     "mkdirp": "^0.5.1",
     "rimraf": "^2.6.1",
     "scratch-render-fonts": "git+https://github.com/LLK/scratch-render-fonts.git",
-    "webpack": "3.10.0"
+    "webpack": "3.11.0"
   }
 }
