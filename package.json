@@ -36,7 +36,7 @@
     "mkdirp": "^0.5.1",
     "rimraf": "^2.6.1",
     "scratch-render-fonts": "1.0.0-prerelease.20180524203748",
-    "webpack": "^4.8.0",
+    "webpack": "4.9.1",
     "webpack-cli": "^2.0.15"
   }
 }
