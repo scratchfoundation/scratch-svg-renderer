@@ -3,7 +3,7 @@
 const test = require('tap').test;
 const BitmapAdapter = require('../src/bitmap-adapter');
 
-test('errors', t => {
+test('zero', t => {
     const bitmapAdapter = new BitmapAdapter();
     const size = bitmapAdapter.getResizedWidthHeight(0, 0);
     t.equals(0, size.width);
