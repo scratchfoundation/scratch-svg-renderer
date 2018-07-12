@@ -38,18 +38,16 @@ class BitmapAdapter {
      * to resolution 2 bitmaps. Therefore, converting a resolution 1 bitmap means doubling
      * it in width and height.
      * @param {!string} dataURI Base 64 encoded image data of the bitmap
-     * @param {!function} callback Called with the updated dataURI if conversion succeeded,
-     *     or no arguments if the conversion failed.
+     * @param {!function} callback Node-style callback that returns updated dataURI if conversion succeeded
      */
     convertResolution1Bitmap (dataURI, callback) {
         const image = this._makeImage();
         image.src = dataURI;
         image.onload = () => {
-            callback(this.resize(image, image.width * 2, image.height * 2).toDataURL());
+            callback(null, this.resize(image, image.width * 2, image.height * 2).toDataURL());
         };
         image.onerror = () => {
-            log.error('Image load failed');
-            callback();
+            callback('Image load failed');
         };
     }
 
@@ -96,10 +94,15 @@ class BitmapAdapter {
 
     /**
      * Given bitmap data, resize as necessary.
-     * @param {!string} dataURI Base 64 encoded image data of the bitmap
-     * @returns {Promise} Resolves to resized base64 dataURI
+     * @param {ArrayBuffer | string} fileData Base 64 encoded image data of the bitmap
+     * @param {string} fileType The MIME type of this file
+     * @returns {Promise} Resolves to resized image data Uint8Array
      */
-    importBitmap (dataURI) {
+    importBitmap (fileData, fileType) {
+        let dataURI = fileData;
+        if (fileData instanceof ArrayBuffer) {
+            dataURI = this.convertBinaryToDataURI(fileData, fileType);
+        }
         return new Promise((resolve, reject) => {
             const image = this._makeImage();
             image.src = dataURI;
@@ -109,7 +112,8 @@ class BitmapAdapter {
                     // No change
                     resolve(dataURI);
                 } else {
-                    resolve(this.resize(image, newSize.width, newSize.height).toDataURL());
+                    const resizedDataURI = this.resize(image, newSize.width, newSize.height).toDataURL();
+                    resolve(this.convertDataURIToBinary(resizedDataURI));
                 }
             };
             image.onerror = () => {
@@ -136,7 +140,7 @@ class BitmapAdapter {
     }
 
     convertBinaryToDataURI (arrayBuffer, contentType) {
-        return `data:${contentType};base64,${base64js.fromByteArray(new Uint8ClampedArray(arrayBuffer))}`;
+        return `data:${contentType};base64,${base64js.fromByteArray(new Uint8Array(arrayBuffer))}`;
     }
 }
 
