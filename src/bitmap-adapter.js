@@ -1,4 +1,3 @@
-const log = require('./util/log');
 const base64js = require('base64-js');
 
 /**
@@ -110,15 +109,14 @@ class BitmapAdapter {
                 const newSize = this.getResizedWidthHeight(image.width, image.height);
                 if (newSize.width === image.width && newSize.height === image.height) {
                     // No change
-                    resolve(dataURI);
+                    resolve(this.convertDataURIToBinary(dataURI));
                 } else {
                     const resizedDataURI = this.resize(image, newSize.width, newSize.height).toDataURL();
                     resolve(this.convertDataURIToBinary(resizedDataURI));
                 }
             };
             image.onerror = () => {
-                log.error('Image load failed');
-                reject();
+                reject('Image load failed');
             };
         });
     }
