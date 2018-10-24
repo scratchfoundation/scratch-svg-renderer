@@ -46,8 +46,8 @@ class SvgElement {
     static get (node, name) {
         const namespace = SvgElement.attributeNamespace[name];
         const value = namespace ?
-                node.getAttributeNS(namespace, name) :
-                node.getAttribute(name);
+            node.getAttributeNS(namespace, name) :
+            node.getAttribute(name);
         return value === 'null' ? null : value;
     }
 
