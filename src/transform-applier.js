@@ -288,7 +288,7 @@ const _transformPath = function (pathString, transform) {
     return result;
 };
 
-const GRAPHICS_ELEMENTS = ['circle', 'ellipse', 'image', 'line', 'path', 'polygon', 'polyline', 'rect', 'text', 'use'];
+const GRAPHICS_ELEMENTS = ['circle', 'ellipse', 'line', 'path', 'polygon', 'polyline', 'rect', 'text', 'use'];
 const CONTAINER_ELEMENTS = ['a', 'defs', 'g', 'marker', 'glyph', 'missing-glyph', 'pattern', 'svg', 'switch', 'symbol'];
 const _isContainerElement = function (element) {
     return element.tagName && CONTAINER_ELEMENTS.includes(element.tagName.toLowerCase());
@@ -582,7 +582,7 @@ const transformStrokeWidths = function (svgTag, windowRef, bboxForTesting) {
             element.setAttribute('fill', fill);
         } else if (_isGraphicsElement(element)) {
             // Push stroke width and fill down to leaves
-            if (strokeWidth && !element.attributes['stroke-width']) {
+            if (strokeWidth && strokeWidth !== 1 && !element.attributes['stroke-width']) {
                 element.setAttribute('stroke-width', strokeWidth);
             }
             if (fill && !element.attributes.fill) {
