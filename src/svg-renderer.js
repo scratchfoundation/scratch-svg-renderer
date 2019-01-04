@@ -394,7 +394,7 @@ class SvgRenderer {
             height: Math.ceil(this._measurements.height * ratio),
             x: this._measurements.x,
             y: this._measurements.y
-        }
+        };
 
         this._canvas.width = this._renderBounds.width;
         this._canvas.height = this._renderBounds.height;
