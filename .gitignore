@@ -4,9 +4,11 @@
 # NPM
 /node_modules
 npm-*
+/package-lock.json
 
 # Build
 dist/*
+/playground
 
 # Editors
 /#*
