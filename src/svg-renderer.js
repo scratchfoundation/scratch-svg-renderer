@@ -18,6 +18,7 @@ class SvgRenderer {
         this._canvas = canvas || document.createElement('canvas');
         this._context = this._canvas.getContext('2d');
         this._measurements = {x: 0, y: 0, width: 0, height: 0};
+        this._renderBounds = {x: 0, y: 0, width: 0, height: 0};
         this._cachedImage = null;
     }
 
@@ -56,6 +57,13 @@ class SvgRenderer {
      */
     get size () {
         return [this._measurements.width, this._measurements.height];
+    }
+
+    /**
+     * @return {Array<number>} the bounds of the canvas this SVG was rendered onto.
+     */
+    get renderBounds () {
+        return [this._renderBounds.width, this._renderBounds.height];
     }
 
     /**
@@ -381,13 +389,24 @@ class SvgRenderer {
 
         const ratio = this.getDrawRatio() * (Number.isFinite(scale) ? scale : 1);
         const bbox = this._measurements;
-        this._canvas.width = bbox.width * ratio;
-        this._canvas.height = bbox.height * ratio;
+        this._renderBounds = {
+            width: Math.ceil(this._measurements.width * ratio),
+            height: Math.ceil(this._measurements.height * ratio),
+            x: this._measurements.x,
+            y: this._measurements.y
+        }
+
+        this._canvas.width = this._renderBounds.width;
+        this._canvas.height = this._renderBounds.height;
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
-        this._context.scale(ratio, ratio);
-        this._context.drawImage(this._cachedImage, 0, 0);
-        // Reset the canvas transform after drawing.
-        this._context.setTransform(1, 0, 0, 1, 0, 0);
+        // To make up for the fact that we're rounding the canvas bounds to the highest int,
+        // offset the drawing to re-center it.
+        this._context.drawImage(
+            this._cachedImage,
+            (this._renderBounds.width - (this._measurements.width * ratio)) * 0.5,
+            (this._renderBounds.height - (this._measurements.height * ratio)) * 0.5,
+            this._measurements.width * ratio,
+            this._measurements.height * ratio);
         // Set the CSS style of the canvas to the actual measurements.
         this._canvas.style.width = bbox.width;
         this._canvas.style.height = bbox.height;
