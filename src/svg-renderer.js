@@ -389,9 +389,13 @@ class SvgRenderer {
 
         const ratio = this.getDrawRatio() * (Number.isFinite(scale) ? scale : 1);
         const bbox = this._measurements;
+        
+        const scaledWidth  = this._measurements.width  * ratio;
+        const scaledHeight = this._measurements.height * ratio;
+
         this._renderBounds = {
-            width: Math.ceil(this._measurements.width * ratio),
-            height: Math.ceil(this._measurements.height * ratio),
+            width: Math.ceil(scaledWidth * 0.5) * 2,
+            height: Math.ceil(scaledHeight * 0.5) * 2,
             x: this._measurements.x,
             y: this._measurements.y
         };
@@ -399,18 +403,8 @@ class SvgRenderer {
         this._canvas.width = this._renderBounds.width;
         this._canvas.height = this._renderBounds.height;
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
-
-        // To make up for the fact that we're rounding the canvas bounds to the highest int,
-        // offset the drawing to re-center it.
-        // Not done because in some browsers (curse you, Firefox), drawing an SVG at non-integer coords is blurry
-        /* this._context.drawImage(
-            this._cachedImage,
-            0,
-            0,
-            this._measurements.width * ratio,
-            this._measurements.height * ratio); */
         
-        this._context.drawImage(this._cachedImage, 0, 0, this._renderBounds.width, this._renderBounds.height);
+        this._context.drawImage(this._cachedImage, 0, 0, scaledWidth,scaledHeight);
         // Set the CSS style of the canvas to the actual measurements.
         this._canvas.style.width = bbox.width;
         this._canvas.style.height = bbox.height;
