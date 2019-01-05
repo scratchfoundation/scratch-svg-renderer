@@ -393,6 +393,7 @@ class SvgRenderer {
         const scaledWidth  = this._measurements.width  * ratio;
         const scaledHeight = this._measurements.height * ratio;
 
+        // Round render bounds to even integers to prevent non-integer rotation centers
         this._renderBounds = {
             width: Math.ceil(scaledWidth * 0.5) * 2,
             height: Math.ceil(scaledHeight * 0.5) * 2,
