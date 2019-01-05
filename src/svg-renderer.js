@@ -390,7 +390,7 @@ class SvgRenderer {
         const ratio = this.getDrawRatio() * (Number.isFinite(scale) ? scale : 1);
         const bbox = this._measurements;
         
-        const scaledWidth  = this._measurements.width  * ratio;
+        const scaledWidth = this._measurements.width * ratio;
         const scaledHeight = this._measurements.height * ratio;
 
         // Round render bounds to even integers to prevent non-integer rotation centers
@@ -405,7 +405,7 @@ class SvgRenderer {
         this._canvas.height = this._renderBounds.height;
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
         
-        this._context.drawImage(this._cachedImage, 0, 0, scaledWidth,scaledHeight);
+        this._context.drawImage(this._cachedImage, 0, 0, scaledWidth, scaledHeight);
         // Set the CSS style of the canvas to the actual measurements.
         this._canvas.style.width = bbox.width;
         this._canvas.style.height = bbox.height;
