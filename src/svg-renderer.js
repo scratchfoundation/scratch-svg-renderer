@@ -19,6 +19,8 @@ class SvgRenderer {
         this._context = this._canvas.getContext('2d');
         this._measurements = {x: 0, y: 0, width: 0, height: 0};
         this._cachedImage = null;
+        this._svgDom = null;
+        this._svgTag = null;
     }
 
     /**
