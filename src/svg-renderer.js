@@ -4,6 +4,18 @@ const convertFonts = require('./font-converter');
 const fixupSvgString = require('./fixup-svg-string');
 const transformStrokeWidths = require('./transform-applier');
 
+// Use of the span element is synchronous, share the same one with all
+// SvgRenderer.
+const createSvgSpot = (function () {
+    let _svgSpot = null;
+    return function () {
+        if (!_svgSpot) {
+            _svgSpot = document.createElement('span');
+        }
+        return _svgSpot;
+    };
+}());
+
 /**
  * Main quirks-mode SVG rendering code.
  */
@@ -316,16 +328,17 @@ class SvgRenderer {
         // This allows us to use `getBBox` on the page,
         // which returns the full bounding-box of all drawn SVG
         // elements, similar to how Scratch 2.0 did measurement.
-        const svgSpot = document.createElement('span');
+        const svgSpot = createSvgSpot();
         let bbox;
         try {
-            document.body.appendChild(svgSpot);
             svgSpot.appendChild(this._svgTag);
+            document.body.appendChild(svgSpot);
             // Take the bounding box.
             bbox = this._svgTag.getBBox();
         } finally {
             // Always destroy the element, even if, for example, getBBox throws.
             document.body.removeChild(svgSpot);
+            svgSpot.removeChild(this._svgTag);
         }
 
         // Re-parse the SVG from `svgText`. The above DOM becomes
