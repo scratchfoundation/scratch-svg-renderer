@@ -18,7 +18,7 @@ class SvgRenderer {
         this._canvas = canvas || document.createElement('canvas');
         this._context = this._canvas.getContext('2d');
         this._measurements = {x: 0, y: 0, width: 0, height: 0};
-        this._renderBounds = {x: 0, y: 0, width: 0, height: 0};
+        this._renderedSize = {x: 0, y: 0, width: 0, height: 0};
         this._cachedImage = null;
     }
 
@@ -60,10 +60,10 @@ class SvgRenderer {
     }
 
     /**
-     * @return {Array<number>} the bounds of the canvas this SVG was rendered onto.
+     * @return {Array<number>} the resolution of the canvas this SVG was rendered onto, in pixels.
      */
-    get renderBounds () {
-        return [this._renderBounds.width, this._renderBounds.height];
+    get renderedSize () {
+        return [this._renderedSize.width, this._renderedSize.height];
     }
 
     /**
@@ -393,16 +393,15 @@ class SvgRenderer {
         const scaledWidth = this._measurements.width * ratio;
         const scaledHeight = this._measurements.height * ratio;
 
-        // Round render bounds to even integers to prevent non-integer rotation centers
-        this._renderBounds = {
-            width: Math.ceil(scaledWidth * 0.5) * 2,
-            height: Math.ceil(scaledHeight * 0.5) * 2,
+        this._renderedSize = {
+            width: scaledWidth,
+            height: scaledHeight,
             x: this._measurements.x,
             y: this._measurements.y
         };
 
-        this._canvas.width = this._renderBounds.width;
-        this._canvas.height = this._renderBounds.height;
+        this._canvas.width = this._renderedSize.width;
+        this._canvas.height = this._renderedSize.height;
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
         
         this._context.drawImage(this._cachedImage, 0, 0, scaledWidth, scaledHeight);
