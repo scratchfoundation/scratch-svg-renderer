@@ -18,7 +18,7 @@ class SvgRenderer {
         this._canvas = canvas || document.createElement('canvas');
         this._context = this._canvas.getContext('2d');
         this._measurements = {x: 0, y: 0, width: 0, height: 0};
-        this._renderedSize = {x: 0, y: 0, width: 0, height: 0};
+        this._renderedSize = {width: 0, height: 0};
         this._cachedImage = null;
     }
 
@@ -395,9 +395,7 @@ class SvgRenderer {
 
         this._renderedSize = {
             width: Math.ceil(scaledWidth),
-            height: Math.ceil(scaledHeight),
-            x: this._measurements.x,
-            y: this._measurements.y
+            height: Math.ceil(scaledHeight)
         };
 
         this._canvas.width = this._renderedSize.width;
