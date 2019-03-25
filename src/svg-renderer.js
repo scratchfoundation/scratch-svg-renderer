@@ -394,8 +394,8 @@ class SvgRenderer {
         const scaledHeight = this._measurements.height * ratio;
 
         this._renderedSize = {
-            width: scaledWidth,
-            height: scaledHeight,
+            width: Math.ceil(scaledWidth),
+            height: Math.ceil(scaledHeight),
             x: this._measurements.x,
             y: this._measurements.y
         };
