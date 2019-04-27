@@ -3,6 +3,7 @@ const SvgElement = require('./svg-element');
 const convertFonts = require('./font-converter');
 const fixupSvgString = require('./fixup-svg-string');
 const transformStrokeWidths = require('./transform-applier');
+const base64js = require('base64-js');
 
 /**
  * Main quirks-mode SVG rendering code.
@@ -96,6 +97,8 @@ class SvgRenderer {
         if (fromVersion2) {
             // Transform all text elements.
             this._transformText();
+            // Un-transform Scratch 2 <image> elements
+            this._fixScratch2Images();
             // Transform measurements.
             this._transformMeasurements();
         } else if (!this._svgTag.getAttribute('viewBox')) {
@@ -243,8 +246,7 @@ class SvgRenderer {
     }
 
     /**
-     * Fix SVGs to match appearance in Scratch 2, which used nearest neighbor scaling for bitmaps
-     * within SVGs.
+     * Fix SVGs to match appearance in Scratch 2, which used nearest neighbor scaling for bitmaps within SVGs.
      */
     _transformImages () {
         const imageElements = this._collectElements('image');
@@ -257,6 +259,54 @@ class SvgRenderer {
                     `${pixelatedImages} ${elt.getAttribute('style')}`);
             } else {
                 elt.setAttribute('style', pixelatedImages);
+            }
+
+            elt.removeAttribute('x');
+            elt.removeAttribute('y');
+        }
+    }
+
+    /**
+     * Fix image positioning: Scratch 2 ignores "x" and "y" attributes of images and uses "transform" only.
+     * It also ignores the image's "width" and "height" properties.
+     */
+    _fixScratch2Images () {
+        const imageElements = this._collectElements('image');
+
+        // For each image element, remove "x" and "y" attributes.
+        for (const elt of imageElements) {
+            const uri = elt.getAttribute('xlink:href');
+
+            // If it's a base64-encoded png, engage the Jankening!
+            // This is the only way to _synchronously_ determine the image's dimensions, unfortunately.
+            // Measuring the image by creating an <img> element requires us to set a load event listener.
+            // TODO: Make `SvgRenderer.fromString()` asynchronous so we can use a better method here.
+            if (uri.slice(0, 22) === 'data:image/png;base64,') {
+                // Get enough bytes of the PNG to read the width/height bytes, plus 4 newlines' worth of fudge factor
+                const firstSlice = uri.slice(22, 58).replace(/\n/g, '')
+                    .slice(0, 32);
+                
+                // Convert to byte array
+                const pngBytes = base64js.toByteArray(firstSlice);
+
+                // Read the width and height directly from the PNG header, like _REAL_ programmers.
+                // This assumes that the IHDR chunk is always in the same place, which appears true
+                // based on my cursory reading of the PNG spec
+                const width = (pngBytes[16] << 24) |
+                              (pngBytes[17] << 16) |
+                              (pngBytes[18] << 8) |
+                               pngBytes[19];
+                
+                const height = (pngBytes[20] << 24) |
+                               (pngBytes[21] << 16) |
+                               (pngBytes[22] << 8) |
+                                pngBytes[23];
+
+                // Set the element's proper width and height values, and remove x and y
+                elt.removeAttribute('x');
+                elt.removeAttribute('y');
+                elt.setAttribute('width', width.toString());
+                elt.setAttribute('height', height.toString());
             }
         }
     }
