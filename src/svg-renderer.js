@@ -260,9 +260,6 @@ class SvgRenderer {
             } else {
                 elt.setAttribute('style', pixelatedImages);
             }
-
-            elt.removeAttribute('x');
-            elt.removeAttribute('y');
         }
     }
 
