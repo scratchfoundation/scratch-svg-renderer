@@ -40,7 +40,7 @@
     "lodash.defaultsdeep": "4.6.0",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.6.1",
-    "tap": "^11.0.1",
+    "tap": "^14.1.9",
     "webpack": "^4.8.0",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.4",
