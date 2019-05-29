@@ -18,7 +18,6 @@ class SvgRenderer {
         this._canvas = canvas || document.createElement('canvas');
         this._context = this._canvas.getContext('2d');
         this._measurements = {x: 0, y: 0, width: 0, height: 0};
-        this._renderedSize = {width: 0, height: 0};
         this._cachedImage = null;
     }
 
@@ -63,7 +62,7 @@ class SvgRenderer {
      * @return {Array<number>} the resolution of the canvas this SVG was rendered onto, in pixels.
      */
     get renderedSize () {
-        return [this._renderedSize.width, this._renderedSize.height];
+        return [this._canvas.width, this._canvas.height];
     }
 
     /**
@@ -419,9 +418,6 @@ class SvgRenderer {
         const bbox = this._measurements;
         this._canvas.width = bbox.width * ratio;
         this._canvas.height = bbox.height * ratio;
-
-        this._renderedSize.width = this._canvas.width;
-        this._renderedSize.height = this._canvas.height;
 
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
         this._context.scale(ratio, ratio);
