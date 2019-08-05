@@ -3,6 +3,7 @@ const SvgElement = require('./svg-element');
 const convertFonts = require('./font-converter');
 const fixupSvgString = require('./fixup-svg-string');
 const transformStrokeWidths = require('./transform-applier');
+const {isSafari} = require('./util/helper');
 
 /**
  * Main quirks-mode SVG rendering code.
@@ -390,11 +391,24 @@ class SvgRenderer {
             this._drawFromImage(scale, onFinish);
         } else {
             const img = new Image();
-            img.onload = () => {
+            const svgText = this.toString(true /* shouldInjectFonts */);
+            const doDraw = () => {
                 this._cachedImage = img;
                 this._drawFromImage(scale, onFinish);
             };
-            const svgText = this.toString(true /* shouldInjectFonts */);
+            img.onload = () => {
+                // In Safari, if the svg contains an image tag,
+                // the image tag may not be rendered when the onload event fires.
+                if (isSafari) {
+                    const div = document.createElement('div');
+                    div.innerHTML = svgText;
+                    Promise.all([...div.querySelectorAll('image')].map($img => new Promise(resolve => {
+                        const innerImage = document.createElement('img');
+                        innerImage.onerror = innerImage.onload = resolve;
+                        innerImage.src = $img.getAttribute('xlink:href');
+                    }))).then(doDraw);
+                } else doDraw();
+            };
             img.src = `data:image/svg+xml;utf8,${encodeURIComponent(svgText)}`;
         }
     }
