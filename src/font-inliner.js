@@ -3,6 +3,9 @@
  */
 const {FONTS} = require('scratch-render-fonts');
 
+// This must be initialized via the RegExp constructor because Edge won't parse this as a regex literal.
+const svgTagRegex = new RegExp('<svg[^>]*>');
+
 /**
  * Given SVG data, inline the fonts. This allows them to be rendered correctly when set
  * as the source of an HTMLImageElement. Here is a note from tmickel:
@@ -40,7 +43,7 @@ const inlineSvgFonts = function (svgString) {
             }
         }
         str += '</style></defs>';
-        svgString = svgString.replace(/<svg[^>]*>/, `$&${str}`);
+        svgString = svgString.replace(svgTagRegex, `$&${str}`);
         return svgString;
     }
     return svgString;
