@@ -305,18 +305,27 @@ class SvgRenderer {
      * @return {number} The largest stroke width in the SVG.
      */
     _findLargestStrokeWidth (rootNode) {
+        // Per SVG spec, the 'stroke' attribute only applies to shapes and text content elements:
+        // https://www.w3.org/TR/SVG11/painting.html#StrokeProperty
+        const STROKABLE_ELEMENTS = new Set([
+            // Shape elements (https://www.w3.org/TR/SVG11/intro.html#TermShape)
+            'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon',
+            // Text content elements (https://www.w3.org/TR/SVG11/intro.html#TermTextContentElement)
+            'altGlyph', 'textPath', 'text', 'tref', 'tspan'
+        ]);
+
         let largestStrokeWidth = 0;
         const collectStrokeWidths = domElement => {
-            if (domElement.getAttribute) {
-                if (domElement.getAttribute('stroke')) {
-                    largestStrokeWidth = Math.max(largestStrokeWidth, 1);
-                }
-                if (domElement.getAttribute('stroke-width')) {
-                    largestStrokeWidth = Math.max(
-                        largestStrokeWidth,
-                        Number(domElement.getAttribute('stroke-width')) || 0
-                    );
-                }
+            if (
+                STROKABLE_ELEMENTS.has(domElement.localName) &&
+                domElement.getAttribute &&
+                domElement.getAttribute('stroke') &&
+                domElement.getAttribute('stroke') !== 'none'
+            ) {
+                const strokeWidthAttr = domElement.getAttribute('stroke-width');
+                // Stroke width is 1 if unset.
+                const strokeWidth = Number(strokeWidthAttr) || 1;
+                largestStrokeWidth = Math.max(largestStrokeWidth, strokeWidth);
             }
             for (let i = 0; i < domElement.childNodes.length; i++) {
                 collectStrokeWidths(domElement.childNodes[i]);
