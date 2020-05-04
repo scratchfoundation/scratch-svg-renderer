@@ -33,11 +33,10 @@ class SvgRenderer {
          */
 
         /**
-         * The measurement box of the currently loaded SVG.
+         * The viewbox of the currently loaded SVG, prior to any potential adjustment to correct subpixel positioning.
          * @type {SvgRenderer#SvgMeasurements}
-         * @private
          */
-        this._measurements = {x: 0, y: 0, width: 0, height: 0};
+        this.measurements = {x: 0, y: 0, width: 0, height: 0};
 
         /**
          * The `<img>` element with the contents of the currently loaded SVG.
@@ -51,6 +50,25 @@ class SvgRenderer {
          * @type {boolean}
          */
         this.loaded = false;
+
+        /**
+         * The rotation center of the currently loaded SVG, as adjusted to ensure proper subpixel positioning.
+         * Relative to the top-left corner of the adjusted viewbox.
+         * Null when an SVG is not loaded.
+         * @type {?Array<number>}
+         */
+        this.adjustedRotationCenter = null;
+
+        /**
+         * The dimensions of the currently loaded SVG, as adjusted to ensure proper subpixel positioning.
+         * As such, these dimensions will be evenly divisible by the smallest scale that scratch-render will ask us to
+         * render this SVG at.
+         * Null when an SVG is not loaded.
+         * @type {?Array<number>}
+         */
+        this.adjustedSize = null;
+
+        this.adjustedMeasurements = {xOffset: 0, yOffset: 0, width: 0, height: 0};
     }
 
     /**
@@ -67,21 +85,14 @@ class SvgRenderer {
      */
     measure (svgString) {
         this.loadString(svgString);
-        return this._measurements;
+        return this.measurements;
     }
 
     /**
      * @return {Array<number>} the natural size, in Scratch units, of this SVG.
      */
     get size () {
-        return [this._measurements.width, this._measurements.height];
-    }
-
-    /**
-     * @return {Array<number>} the offset (upper left corner) of the SVG's view box.
-     */
-    get viewOffset () {
-        return [this._measurements.x, this._measurements.y];
+        return [this.measurements.width, this.measurements.height];
     }
 
     /**
@@ -126,7 +137,7 @@ class SvgRenderer {
             this._svgTag.setAttribute('width', this._svgTag.viewBox.baseVal.width);
             this._svgTag.setAttribute('height', this._svgTag.viewBox.baseVal.height);
         }
-        this._measurements = {
+        this.measurements = {
             width: this._svgTag.viewBox.baseVal.width,
             height: this._svgTag.viewBox.baseVal.height,
             x: this._svgTag.viewBox.baseVal.x,
@@ -135,13 +146,101 @@ class SvgRenderer {
     }
 
     /**
+     * Set the loaded SVG's viewBox and this renderer's viewOffset for proper subpixel positioning.
+     * @param {Array<number>} rotationCenter The rotation center of the Skin this SVG is used for.
+     * @param {number} minScale The minimum scale at which this SVG should be rendered with proper subpixel positioning.
+     */
+    _setSubpixelViewbox (rotationCenter, minScale) {
+        // The preserveAspectRatio attribute has all sorts of weird effects on the viewBox if enabled.
+        this._svgTag.setAttribute('preserveAspectRatio', 'none');
+
+        const measurements = this.measurements;
+
+        // Compensate for quirks-mode SVG viewbox offset.
+        // Multiplied by the minimum drawing scale.
+        const center = [
+            (
+                rotationCenter[0]
+                // Compensate for viewbox offset.
+                // See https://github.com/LLK/scratch-render/pull/90.
+                // eslint-disable-next-line operator-linebreak
+                - this.measurements.x
+            ) * minScale,
+
+            (rotationCenter[1] - this.measurements.y) * minScale
+        ];
+
+        // Take the fractional part of the scaled rotation center.
+        // We will translate the viewbox by this amount later for proper subpixel positioning.
+        const centerFrac = [
+            (center[0] % 1),
+            (center[1] % 1)
+        ];
+
+        // Scale the viewbox dimensions by the minimum scale, add the offset, then take the ceiling
+        // to get the rendered size (scaled by minScale).
+        const scaledSize = [
+            Math.ceil((this.measurements.width * minScale) + (1 - centerFrac[0])),
+            Math.ceil((this.measurements.height * minScale) + (1 - centerFrac[1]))
+        ];
+
+        // Scale back up to the SVG size.
+        const adjustedSize = [
+            scaledSize[0] / minScale,
+            scaledSize[1] / minScale
+        ];
+
+        this.adjustedSize = adjustedSize;
+
+        this.adjustedMeasurements.xOffset = ((1 - centerFrac[0]) / minScale);
+        this.adjustedMeasurements.yOffset = ((1 - centerFrac[1]) / minScale);
+        this.adjustedMeasurements.width = adjustedSize[0];
+        this.adjustedMeasurements.height = adjustedSize[1];
+
+        this.adjustedRotationCenter = [
+            (center[0] / minScale) + this.adjustedMeasurements.xOffset,
+            (center[1] / minScale) + this.adjustedMeasurements.yOffset
+        ];
+
+        // Adjust the SVG tag's viewbox to match the texture dimensions and offset.
+        // This will ensure that the SVG is rendered at the proper sub-pixel position,
+        // and with integer dimensions at power-of-two sizes down to minScale.
+        this._svgTag.setAttribute('viewBox',
+            `${
+                measurements.x - ((1 - centerFrac[0]) / minScale)
+            } ${
+                measurements.y - ((1 - centerFrac[1]) / minScale)
+            } ${
+                adjustedSize[0]
+            } ${
+                adjustedSize[1]
+            }`);
+
+        this._svgTag.setAttribute('width', adjustedSize[0]);
+        this._svgTag.setAttribute('height', adjustedSize[1]);
+    }
+
+    /**
      * Load an SVG string, normalize it, and prepare it for (synchronous) rendering.
      * @param {!string} svgString String of SVG data to draw in quirks-mode.
      * @param {?boolean} fromVersion2 True if we should perform conversion from version 2 to version 3 svg.
      * @param {Function} [onFinish] - An optional callback to call when the SVG is loaded and can be rendered.
+     * @param {Array<number>} [rotationCenter] - Optionally, the rotation center of the Skin this SVG is used for,
+     * relative to the top-left corner of the viewbox.
+     * @param {number} [minScale] - Optionally, the minimum scale this SVG will be rendered at.
      */
-    loadSVG (svgString, fromVersion2, onFinish) {
+    loadSVG (svgString, fromVersion2, onFinish, rotationCenter, minScale) {
         this.loadString(svgString, fromVersion2);
+
+        if (rotationCenter && minScale) {
+            this._setSubpixelViewbox(rotationCenter, minScale);
+        } else {
+            this.adjustedRotationCenter[0] = this.measurements.x;
+            this.adjustedRotationCenter[1] = this.measurements.y;
+            this.adjustedSize[0] = this.measurements.width;
+            this.adjustedSize[1] = this.measurements.height;
+        }
+
         this._createSVGImage(onFinish);
     }
 
@@ -448,9 +547,8 @@ class SvgRenderer {
         if (this._cachedImage === null) return;
 
         const ratio = Number.isFinite(scale) ? scale : 1;
-        const bbox = this._measurements;
-        this._canvas.width = bbox.width * ratio;
-        this._canvas.height = bbox.height * ratio;
+        this._canvas.width = this.adjustedSize[0] * ratio;
+        this._canvas.height = this.adjustedSize[1] * ratio;
         if (this._canvas.width <= 0 || this._canvas.height <= 0) return;
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
         this._context.setTransform(ratio, 0, 0, ratio, 0, 0);
