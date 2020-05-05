@@ -88,7 +88,7 @@
         function loadSVGString() {
             readFileAsText(fileChooser.files[0]).then(str => {
                 loadedSVGString = str;
-                renderer.loadSVG(str, false);
+                renderer.loadString(str, false);
             })
         }
 

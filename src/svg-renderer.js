@@ -221,30 +221,6 @@ class SvgRenderer {
     }
 
     /**
-     * Load an SVG string, normalize it, and prepare it for (synchronous) rendering.
-     * @param {!string} svgString String of SVG data to draw in quirks-mode.
-     * @param {?boolean} fromVersion2 True if we should perform conversion from version 2 to version 3 svg.
-     * @param {Function} [onFinish] - An optional callback to call when the SVG is loaded and can be rendered.
-     * @param {Array<number>} [rotationCenter] - Optionally, the rotation center of the Skin this SVG is used for,
-     * relative to the top-left corner of the viewbox.
-     * @param {number} [minScale] - Optionally, the minimum scale this SVG will be rendered at.
-     */
-    loadSVG (svgString, fromVersion2, onFinish, rotationCenter, minScale) {
-        this.loadString(svgString, fromVersion2);
-
-        if (rotationCenter && minScale) {
-            this.setSubpixelViewbox(rotationCenter, minScale);
-        } else {
-            this.adjustedRotationCenter[0] = this.measurements.x;
-            this.adjustedRotationCenter[1] = this.measurements.y;
-            this.adjustedSize[0] = this.measurements.width;
-            this.adjustedSize[1] = this.measurements.height;
-        }
-
-        this.createSVGImage(onFinish);
-    }
-
-    /**
      * Creates an <img> element for the currently loaded SVG string, then calls the callback once it's loaded.
      * @param {Function} [onFinish] - An optional callback to call when the <img> has loaded.
      */

@@ -28,7 +28,8 @@ const scale = 1;
 const quirksMode = false;
 function doSomethingWith(canvas) {...};
 
-svgRenderer.loadSVG(svgData, quirksMode, () => {
+svgRenderer.loadString(svgData, quirksMode);
+svgRenderer.createSVGImage(() => {
 	svgRenderer.draw(scale);
 	doSomethingWith(svgRenderer.canvas);
 });
