@@ -150,7 +150,7 @@ class SvgRenderer {
      * @param {Array<number>} rotationCenter The rotation center of the Skin this SVG is used for.
      * @param {number} minScale The minimum scale at which this SVG should be rendered with proper subpixel positioning.
      */
-    _setSubpixelViewbox (rotationCenter, minScale) {
+    setSubpixelViewbox (rotationCenter, minScale) {
         // The preserveAspectRatio attribute has all sorts of weird effects on the viewBox if enabled.
         this._svgTag.setAttribute('preserveAspectRatio', 'none');
 
@@ -233,7 +233,7 @@ class SvgRenderer {
         this.loadString(svgString, fromVersion2);
 
         if (rotationCenter && minScale) {
-            this._setSubpixelViewbox(rotationCenter, minScale);
+            this.setSubpixelViewbox(rotationCenter, minScale);
         } else {
             this.adjustedRotationCenter[0] = this.measurements.x;
             this.adjustedRotationCenter[1] = this.measurements.y;
@@ -241,14 +241,14 @@ class SvgRenderer {
             this.adjustedSize[1] = this.measurements.height;
         }
 
-        this._createSVGImage(onFinish);
+        this.createSVGImage(onFinish);
     }
 
     /**
      * Creates an <img> element for the currently loaded SVG string, then calls the callback once it's loaded.
      * @param {Function} [onFinish] - An optional callback to call when the <img> has loaded.
      */
-    _createSVGImage (onFinish) {
+    createSVGImage (onFinish) {
         if (this._cachedImage === null) this._cachedImage = new Image();
         const img = this._cachedImage;
 
