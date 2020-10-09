@@ -49,6 +49,9 @@ module.exports = function (svgString) {
 
     // Empty script tags and javascript executing
     svgString = svgString.replace(/<script[\s\S]*>[\s\S]*<\/script>/, '<script></script>');
+    
+    // Remove error handlers
+    svgString = svgString.replace(/onerror=[\s\S]*['"].*?['"]/i, '');
 
     return svgString;
 };
