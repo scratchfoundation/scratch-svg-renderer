@@ -52,6 +52,12 @@ module.exports = function (svgString) {
     // Empty script tags and javascript executing
     svgString = svgString.replace(/<script[\s\S]*>[\s\S]*<\/script>/, '<script></script>');
 
+    // Remove iframes
+    svgString = svgString.replace(/<iframe.*?(?:\/>|>.*?<\/iframe\s*>)/ig, '');
+    
+    // Remove embeds
+    svgString = svgString.replace(/<embed.*?(?:\/>|>.*?<\/embed\s*>)/ig, '');
+    
     // Remove event handlers
     const eventsRegex = new RegExp(`(${eventHandlerNames.join('|')})\\s*=\\s*['"].*['"]`, 'ig');
     svgString = svgString.replace(eventsRegex, '');
