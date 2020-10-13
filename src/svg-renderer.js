@@ -362,7 +362,16 @@ class SvgRenderer {
         // This allows us to use `getBBox` on the page,
         // which returns the full bounding-box of all drawn SVG
         // elements, similar to how Scratch 2.0 did measurement.
-        const svgSpot = document.createElement('span');
+        const iframeElement = document.createElement('iframe');
+        iframeElement.setAttribute('sandbox', 'allow-same-origin');
+        const svgBlob = new Blob([this._svgTag.outerHTML], {type: 'image/svg+xml'});
+        const iframeContent = URL.createObjectURL(svgBlob);
+        iframeElement.onload = () => {
+            console.log(iframeElement.getSVGDocument().children[0].getBBox());
+        }
+        iframeElement.src = iframeContent;
+        document.body.appendChild(iframeElement);
+        return;
         // Clone the svg tag. This tag becomes unusable/undrawable in browsers
         // once it's appended to the page, perhaps for security reasons?
         const tempTag = this._svgTag.cloneNode(/* deep */ true);
