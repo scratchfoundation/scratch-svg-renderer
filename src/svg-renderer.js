@@ -101,12 +101,15 @@ class SvgRenderer {
             // Transform all text elements.
             this._transformText();
             // Transform measurements.
-            this._transformMeasurements();
+            // We want to call _transformMeasurements here, but cannot until
+            // we find a different way to measure.
+            // this._transformMeasurements();
             // Fix stroke roundedness.
             this._setGradientStrokeRoundedness();
         } else if (!this._svgTag.getAttribute('viewBox')) {
             // Renderer expects a view box.
-            this._transformMeasurements();
+            // We want to call _transformMeasurements here, but cannot until
+            // we find a different way to measure.
         } else if (!this._svgTag.getAttribute('width') || !this._svgTag.getAttribute('height')) {
             this._svgTag.setAttribute('width', this._svgTag.viewBox.baseVal.width);
             this._svgTag.setAttribute('height', this._svgTag.viewBox.baseVal.height);
