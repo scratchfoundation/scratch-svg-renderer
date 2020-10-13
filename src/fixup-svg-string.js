@@ -1,5 +1,3 @@
-const eventHandlerNames = require('./eventHandlerNames.json');
-
 /**
  * Fixup svg string prior to parsing.
  * @param {!string} svgString String of the svg to fix.
@@ -51,9 +49,21 @@ module.exports = function (svgString) {
 
     // Empty script tags and javascript executing
     svgString = svgString.replace(/<script[\s\S]*>[\s\S]*<\/script>/, '<script></script>');
-
+    
     // Remove event handlers
-    const eventsRegex = new RegExp(`(${eventHandlerNames.join('|')})\\s*=\\s*['"].*['"]`, 'ig');
+    const eventNames = [
+        'onbegin', 'onend', 'onrepeat', 'onabort', 'onerror', 'onresize', 'onscroll', 'onunload', 'oncopy',
+        'oncut', 'onpaste', 'oncancel', 'oncanplay', 'oncanplaythrough', 'onchange', 'onclick', 'onclose',
+        'oncuechange', 'ondblclick', 'ondrag', 'ondragend', 'ondragenter', 'ondragexit', 'ondragleave',
+        'ondragover', 'ondragstart', 'ondrop', 'ondurationchange', 'onloadeddata', 'onloadedmetadata',
+        'onloadstart', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove',
+        'onemptied', 'onended', 'onerror', 'onfocus', 'oninput', 'oninvalid', 'onkeydown', 'onkeypress',
+        'onkeyup', 'onload', 'onmouseout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onpause', 'onplay',
+        'onplaying', 'onprogress', 'onratechange', 'onreset', 'onresize', 'onscroll', 'onseeked', 'onseeking',
+        'onselect', 'onshow', 'onstalled', 'onsubmit', 'onsuspend', 'ontimeupdate', 'ontoggle', 'onvolumechange',
+        'onwaiting', 'onactivate', 'onfocusin', 'onfocusout'
+    ];
+    const eventsRegex = new RegExp(`(${eventNames.join('|')})\\s*=\\s*['"].*['"]`, 'ig');
     svgString = svgString.replace(eventsRegex, '');
 
     return svgString;
