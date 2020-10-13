@@ -2,6 +2,7 @@ const inlineSvgFonts = require('./font-inliner');
 const SvgElement = require('./svg-element');
 const convertFonts = require('./font-converter');
 const fixupSvgString = require('./fixup-svg-string');
+const measureSvgBBox = require('./measure-svg-bbox');
 const transformStrokeWidths = require('./transform-applier');
 
 /**
@@ -358,34 +359,9 @@ class SvgRenderer {
      * a natural and performant way.
      */
     _transformMeasurements () {
-        // Append the SVG dom to the document.
-        // This allows us to use `getBBox` on the page,
-        // which returns the full bounding-box of all drawn SVG
-        // elements, similar to how Scratch 2.0 did measurement.
-        const iframeElement = document.createElement('iframe');
-        iframeElement.setAttribute('sandbox', 'allow-same-origin');
-        const svgBlob = new Blob([this._svgTag.outerHTML], {type: 'image/svg+xml'});
-        const iframeContent = URL.createObjectURL(svgBlob);
-        iframeElement.onload = () => {
-            console.log(iframeElement.getSVGDocument().children[0].getBBox());
-        }
-        iframeElement.src = iframeContent;
-        document.body.appendChild(iframeElement);
-        return;
-        // Clone the svg tag. This tag becomes unusable/undrawable in browsers
-        // once it's appended to the page, perhaps for security reasons?
-        const tempTag = this._svgTag.cloneNode(/* deep */ true);
-        let bbox;
-        try {
-            svgSpot.appendChild(tempTag);
-            document.body.appendChild(svgSpot);
-            // Take the bounding box.
-            bbox = tempTag.getBBox();
-        } finally {
-            // Always destroy the element, even if, for example, getBBox throws.
-            document.body.removeChild(svgSpot);
-            svgSpot.removeChild(tempTag);
-        }
+        const bboxPromise = measureSvgBBox(this._svgTag);
+
+        let bbox; // TODO: await bboxPromise
 
         // Enlarge the bbox from the largest found stroke width
         // This may have false-positives, but at least the bbox will always
