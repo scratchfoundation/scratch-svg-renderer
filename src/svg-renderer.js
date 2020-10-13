@@ -49,11 +49,10 @@ class SvgRenderer {
     /**
      * Load an SVG from a string and measure it.
      * @param {string} svgString String of SVG data to draw in quirks-mode.
-     * @return {object} the natural size, in Scratch units, of this SVG.
+     * @return {Promise.<object>} the natural size, in Scratch units, of this SVG.
      */
     measure (svgString) {
-        this.loadString(svgString);
-        return this._measurements;
+        return this.loadString(svgString).then(() => this._measurements);
     }
 
     /**
@@ -75,6 +74,7 @@ class SvgRenderer {
      * @param {!string} svgString String of SVG data to draw in quirks-mode.
      * @param {?boolean} fromVersion2 True if we should perform conversion from
      *     version 2 to version 3 svg.
+     * @returns {Promise} a promise which will resolve once _svgTag and _measurements are ready.
      */
     loadString (svgString, fromVersion2) {
         // New svg string invalidates the cached image
@@ -98,26 +98,31 @@ class SvgRenderer {
         }
         transformStrokeWidths(this._svgTag, window);
         this._transformImages(this._svgTag);
-        if (fromVersion2) {
-            // Transform all text elements.
-            this._transformText();
-            // Transform measurements.
-            this._transformMeasurements();
-            // Fix stroke roundedness.
-            this._setGradientStrokeRoundedness();
-        } else if (!this._svgTag.getAttribute('viewBox')) {
-            // Renderer expects a view box.
-            this._transformMeasurements();
-        } else if (!this._svgTag.getAttribute('width') || !this._svgTag.getAttribute('height')) {
-            this._svgTag.setAttribute('width', this._svgTag.viewBox.baseVal.width);
-            this._svgTag.setAttribute('height', this._svgTag.viewBox.baseVal.height);
-        }
-        this._measurements = {
-            width: this._svgTag.viewBox.baseVal.width,
-            height: this._svgTag.viewBox.baseVal.height,
-            x: this._svgTag.viewBox.baseVal.x,
-            y: this._svgTag.viewBox.baseVal.y
-        };
+        return new Promise(resolve => {
+            if (fromVersion2) {
+                // Transform all text elements.
+                this._transformText();
+                // Transform measurements.
+                resolve(this._transformMeasurements().then(() => {
+                    // Fix stroke roundedness.
+                    this._setGradientStrokeRoundedness();
+                }));
+            } else if (!this._svgTag.getAttribute('viewBox')) {
+                // Renderer expects a view box.
+                resolve(this._transformMeasurements());
+            } else if (!this._svgTag.getAttribute('width') || !this._svgTag.getAttribute('height')) {
+                this._svgTag.setAttribute('width', this._svgTag.viewBox.baseVal.width);
+                this._svgTag.setAttribute('height', this._svgTag.viewBox.baseVal.height);
+                resolve();
+            }
+        }).then(() => {
+            this._measurements = {
+                width: this._svgTag.viewBox.baseVal.width,
+                height: this._svgTag.viewBox.baseVal.height,
+                x: this._svgTag.viewBox.baseVal.x,
+                y: this._svgTag.viewBox.baseVal.y
+            };
+        });
     }
 
     /**
@@ -125,10 +130,12 @@ class SvgRenderer {
      * @param {!string} svgString String of SVG data to draw in quirks-mode.
      * @param {?boolean} fromVersion2 True if we should perform conversion from version 2 to version 3 svg.
      * @param {Function} [onFinish] - An optional callback to call when the SVG is loaded and can be rendered.
+     * @returns {Promise} - a promise which resolves AFTER calling onFinish.
      */
     loadSVG (svgString, fromVersion2, onFinish) {
-        this.loadString(svgString, fromVersion2);
-        this._createSVGImage(onFinish);
+        return this.loadString(svgString, fromVersion2).then(() => {
+            this._createSVGImage(onFinish);
+        });
     }
 
     /**
@@ -357,33 +364,32 @@ class SvgRenderer {
      * attributes and then drawing (Firefox won't draw anything),
      * or inflating them and then measuring a canvas. But this seems to be
      * a natural and performant way.
+     * @returns {Promise} - a promise which resolves after this._svgTag has proper measurements
      */
     _transformMeasurements () {
-        const bboxPromise = measureSvgBBox(this._svgTag);
+        return measureSvgBBox(this._svgTag).then(bbox => {
+            // Enlarge the bbox from the largest found stroke width
+            // This may have false-positives, but at least the bbox will always
+            // contain the full graphic including strokes.
+            // If the width or height is zero however, don't enlarge since
+            // they won't have a stroke width that needs to be enlarged.
+            let halfStrokeWidth;
+            if (bbox.width === 0 || bbox.height === 0) {
+                halfStrokeWidth = 0;
+            } else {
+                halfStrokeWidth = this._findLargestStrokeWidth(this._svgTag) / 2;
+            }
+            const width = bbox.width + (halfStrokeWidth * 2);
+            const height = bbox.height + (halfStrokeWidth * 2);
+            const x = bbox.x - halfStrokeWidth;
+            const y = bbox.y - halfStrokeWidth;
 
-        let bbox; // TODO: await bboxPromise
-
-        // Enlarge the bbox from the largest found stroke width
-        // This may have false-positives, but at least the bbox will always
-        // contain the full graphic including strokes.
-        // If the width or height is zero however, don't enlarge since
-        // they won't have a stroke width that needs to be enlarged.
-        let halfStrokeWidth;
-        if (bbox.width === 0 || bbox.height === 0) {
-            halfStrokeWidth = 0;
-        } else {
-            halfStrokeWidth = this._findLargestStrokeWidth(this._svgTag) / 2;
-        }
-        const width = bbox.width + (halfStrokeWidth * 2);
-        const height = bbox.height + (halfStrokeWidth * 2);
-        const x = bbox.x - halfStrokeWidth;
-        const y = bbox.y - halfStrokeWidth;
-
-        // Set the correct measurements on the SVG tag
-        this._svgTag.setAttribute('width', width);
-        this._svgTag.setAttribute('height', height);
-        this._svgTag.setAttribute('viewBox',
-            `${x} ${y} ${width} ${height}`);
+            // Set the correct measurements on the SVG tag
+            this._svgTag.setAttribute('width', width);
+            this._svgTag.setAttribute('height', height);
+            this._svgTag.setAttribute('viewBox',
+                `${x} ${y} ${width} ${height}`);
+        });
     }
 
     /**

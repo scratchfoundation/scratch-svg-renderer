@@ -9,7 +9,6 @@ const measureSvgBBox = svgTag => new Promise((resolve, reject) => {
     const iframeContent = URL.createObjectURL(svgBlob);
     iframeElement.onload = () => {
         const bbox = iframeElement.getSVGDocument().children[0].getBBox();
-        console.log(bbox);
         resolve(bbox);
     };
     iframeElement.src = iframeContent;

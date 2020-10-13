@@ -73,9 +73,11 @@
         }
 
         function renderSVGString(str) {
-            renderer.fromString(str);
-            renderer._draw(parseFloat(scaleSlider.value));
-            renderedContent.value = renderer.toString(true);
+            const fromVersion2 = false;
+            renderer.loadSVG(str, fromVersion2, () => {
+                renderer.draw(parseFloat(scaleSlider.value));
+                renderedContent.value = renderer.toString(true);
+            });
         }
 
         function updateReferenceImage() {
