@@ -5,6 +5,7 @@ const measureSvgBBox = svgTag => new Promise((resolve, reject) => {
     // elements, similar to how Scratch 2.0 did measurement.
     const iframeElement = document.createElement('iframe');
     iframeElement.setAttribute('sandbox', 'allow-same-origin');
+    // eslint-disable-next-line no-undef
     const svgBlob = new Blob([svgTag.outerHTML], {type: 'image/svg+xml'});
     const iframeContent = URL.createObjectURL(svgBlob);
     iframeElement.onload = () => {
