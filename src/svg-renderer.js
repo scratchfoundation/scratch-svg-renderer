@@ -114,6 +114,8 @@ class SvgRenderer {
                 this._svgTag.setAttribute('width', this._svgTag.viewBox.baseVal.width);
                 this._svgTag.setAttribute('height', this._svgTag.viewBox.baseVal.height);
                 resolve();
+            } else {
+                resolve();
             }
         }).then(() => {
             this._measurements = {
