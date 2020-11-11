@@ -20,7 +20,7 @@
     "url": "git+ssh://git@github.com/LLK/scratch-svg-renderer.git"
   },
   "dependencies": {
-    "base64-js": "1.2.1",
+    "base64-js": "1.5.0",
     "base64-loader": "1.0.0",
     "dompurify": "2.1.1",
     "minilog": "3.1.0",
