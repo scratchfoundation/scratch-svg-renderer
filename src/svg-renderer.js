@@ -1,4 +1,5 @@
 const DOMPurify = require('dompurify');
+const svgNamespacedTags = require('./svg-namespaced-tags');
 const inlineSvgFonts = require('./font-inliner');
 const SvgElement = require('./svg-element');
 const convertFonts = require('./font-converter');
@@ -376,12 +377,20 @@ class SvgRenderer {
             // Remove some tags that Scratch does not use.
             FORBID_TAGS: ['a', 'audio', 'canvas', 'video'],
             // Allow data URI in image tags (e.g. SVGs converted from bitmap)
-            ADD_DATA_URI_TAGS: ['image']
+            ADD_DATA_URI_TAGS: ['image'],
+            // Some Inkscape-created SVGs prefix every tag with `svg:`, and specify `xmlns:svg` to be allowed to do so.
+            // Manually whitelist these prefixed tags, and the `xmlns:svg` attribute.
+            ADD_TAGS: svgNamespacedTags,
+            ADD_ATTR: ['xmlns:svg']
         });
         let bbox;
         try {
             // Insert sanitized value.
-            svgSpot.innerHTML = sanitizedValue;
+            // For some reason, if the element is an `svg:svg` (with prefix), then it will not be recognized as an
+            // instance of `SVGElement` when we set svgSpot's innerHTML to it, and it will not have a `getBBox` method.
+            // Ensure that it is parsed explicitly as an SVG document, then append it to svgSpot.
+            const svgElement = new DOMParser().parseFromString(sanitizedValue, 'image/svg+xml').documentElement;
+            svgSpot.appendChild(svgElement);
             document.body.appendChild(svgSpot);
             // Take the bounding box. We have to get elements via svgSpot
             // because we added it via innerHTML.
