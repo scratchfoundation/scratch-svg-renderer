@@ -24,7 +24,7 @@
     "base64-loader": "1.0.0",
     "dompurify": "2.1.1",
     "minilog": "3.1.0",
-    "transformation-matrix": "1.15.0",
+    "transformation-matrix": "2.6.0",
     "scratch-render-fonts": "1.0.0-prerelease.20200507182347"
   },
   "devDependencies": {
