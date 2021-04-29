@@ -1,0 +1,77 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 99
+  versioning-strategy: increase-if-necessary
+  ignore:
+  - dependency-name: webpack
+    versions:
+    - 5.24.0
+    - 5.24.1
+    - 5.24.2
+    - 5.24.3
+    - 5.24.4
+    - 5.25.1
+    - 5.26.0
+    - 5.26.2
+    - 5.26.3
+    - 5.27.1
+    - 5.27.2
+    - 5.28.0
+    - 5.30.0
+    - 5.31.0
+    - 5.31.2
+    - 5.32.0
+    - 5.33.2
+    - 5.34.0
+    - 5.35.0
+    - 5.35.1
+    - 5.36.0
+  - dependency-name: tap
+    versions:
+    - 14.11.0
+    - 15.0.0
+    - 15.0.1
+    - 15.0.2
+    - 15.0.3
+    - 15.0.4
+  - dependency-name: eslint
+    versions:
+    - 7.18.0
+    - 7.19.0
+    - 7.20.0
+    - 7.21.0
+    - 7.22.0
+    - 7.23.0
+    - 7.24.0
+  - dependency-name: transformation-matrix
+    versions:
+    - 2.6.0
+    - 2.7.0
+  - dependency-name: jsdom
+    versions:
+    - 16.4.0
+    - 16.5.0
+    - 16.5.1
+    - 16.5.2
+  - dependency-name: webpack-cli
+    versions:
+    - 4.4.0
+    - 4.5.0
+  - dependency-name: xmldom
+    versions:
+    - 0.4.0
+    - 0.5.0
+  - dependency-name: dompurify
+    versions:
+    - 2.2.6
+  - dependency-name: json
+    versions:
+    - 10.0.0
+  - dependency-name: babel-loader
+    versions:
+    - 8.1.0
