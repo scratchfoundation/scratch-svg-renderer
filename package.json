@@ -1,6 +1,6 @@
 {
   "name": "scratch-svg-renderer",
-  "version": "0.2.0",
+  "version": "0.0.0-development",
   "description": "SVG renderer for Scratch",
   "main": "./src/index.js",
   "scripts": {
@@ -10,14 +10,15 @@
     "test": "npm run test:lint && npm run test:unit",
     "test:lint": "eslint . --ext .js",
     "test:unit": "tap ./test/*.js",
-    "watch": "webpack --progress --colors --watch"
+    "watch": "webpack --progress --colors --watch",
+    "semantic-release": "semantic-release"
   },
   "author": "Massachusetts Institute of Technology",
   "license": "BSD-3-Clause",
   "homepage": "https://github.com/LLK/scratch-svg-renderer#readme",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/LLK/scratch-svg-renderer.git"
+    "url": "https://github.com/LLK/scratch-svg-renderer.git"
   },
   "peerDependencies": {
     "scratch-render-fonts": "^1.0.0-prerelease"
@@ -44,6 +45,7 @@
     "mkdirp": "^1.0.3",
     "rimraf": "^3.0.1",
     "scratch-render-fonts": "^1.0.0-prerelease",
+    "semantic-release": "^17.4.3",
     "tap": "^11.0.1",
     "webpack": "^4.8.0",
     "webpack-cli": "^3.1.0",
