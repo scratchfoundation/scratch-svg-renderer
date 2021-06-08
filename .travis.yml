@@ -16,6 +16,7 @@ jobs:
   include:
     - stage: test
       script:
+      - commitlint-travis
       - npm run test
     - stage: deploy
       script: npm run build
