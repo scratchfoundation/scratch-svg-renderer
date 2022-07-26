@@ -142,3 +142,17 @@ test('fixupSvgString shouldn\'t correct non-image tags', t => {
     t.notEqual(dontFix.indexOf('img/png'), -1);
     t.end();
 });
+
+test('fixupSvgString SHOULD correct hrefs that are NOT data links', t => {
+    const fixed = fixupSvgString('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:foo="http://www.w3.org/1999/xlink" xml:space="preserve"><image foo:href="https://placekitten.com/64/64"/></svg>');
+
+    t.equal(fixed.indexOf('https://placekitten.com/64/64'), -1);
+    t.end();
+});
+
+test('fixupSvgString should NOT correct hrefs that ARE data links', t => {
+    const fixed = fixupSvgString('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:foo="http://www.w3.org/1999/xlink" xml:space="preserve"><image href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHBhdGggZmlsbD0iIzFBMzc2MSIgZD0iTTE3Ljc4IDI1LjY1Yy44OS0uODkgMi4zNS0uODkgMy4yNSAwTDQwIDQ0LjU5bDE4Ljk3LTE4Ljk1Yy44OS0uODkgMi4zNS0uODkgMy4yNCAwbDIuNDMgMi40M2MuODkuODkuODkgMi4zNSAwIDMuMjVMNDEuNjIgNTQuMzVjLS45Ljg5LTIuMzUuODktMy4yNSAwTDE1LjM1IDMxLjMzYy0uODktLjg5LS44OS0yLjM1IDAtMy4yNWwyLjQzLTIuNDN6Ii8+PC9zdmc+"/ ></svg>');
+
+    t.notEqual(fixed.indexOf('data:'), -1);
+    t.end();
+});

@@ -57,5 +57,10 @@ module.exports = function (svgString) {
     // Empty script tags and javascript executing
     svgString = svgString.replace(/<script[\s\S]*>[\s\S]*<\/script>/, '<script></script>');
 
+    // Empty script tags and javascript executing
+    svgString = svgString.replace(/<script[\s\S]*>[\s\S]*<\/script>/, '<script></script>');
+
+    svgString = svgString.replace(/href="(?!data).*"/, '');
+
     return svgString;
 };

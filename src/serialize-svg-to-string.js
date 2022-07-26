@@ -1,4 +1,5 @@
 const inlineSvgFonts = require('./font-inliner');
+const fixupSvgString = require('./fixup-svg-string');
 
 /**
  * Serialize a given SVG DOM to a string.
@@ -10,6 +11,7 @@ const inlineSvgFonts = require('./font-inliner');
 const serializeSvgToString = (svgTag, shouldInjectFonts) => {
     const serializer = new XMLSerializer();
     let string = serializer.serializeToString(svgTag);
+    string = fixupSvgString(string);
     if (shouldInjectFonts) {
         string = inlineSvgFonts(string);
     }
