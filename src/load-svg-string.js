@@ -1,7 +1,6 @@
 const DOMPurify = require('dompurify');
 const SvgElement = require('./svg-element');
 const convertFonts = require('./font-converter');
-const fixupSvgString = require('./fixup-svg-string');
 const transformStrokeWidths = require('./transform-applier');
 
 /**
@@ -320,7 +319,6 @@ const normalizeSvg = (svgTag, fromVersion2) => {
 const loadSvgString = (svgString, fromVersion2) => {
     // Parse string into SVG XML.
     const parser = new DOMParser();
-    svgString = fixupSvgString(svgString);
     const svgDom = parser.parseFromString(svgString, 'text/xml');
     if (svgDom.childNodes.length < 1 ||
         svgDom.documentElement.localName !== 'svg') {

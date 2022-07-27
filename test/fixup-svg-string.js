@@ -43,7 +43,7 @@ test('fixupSvgString should correct namespace declarations bound to reserved nam
 });
 
 test('fixupSvgString shouldn\'t correct non-attributes', t => {
-    const dontFix = fixupSvgString('<text>xmlns:test="http://www/w3.org/XML/1998/namespace" is not an xmlns attribute</text>');
+    const dontFix = fixupSvgString('<svg><text>xmlns:test="http://www/w3.org/XML/1998/namespace" is not an xmlns attribute</text></svg>');
 
     t.notEqual(dontFix.indexOf('http://www/w3.org/XML/1998/namespace'), -1);
     t.end();
@@ -83,10 +83,9 @@ test('fixupSvgString should empty script tags', t => {
     const svgString = fs.readFileSync(filePath)
         .toString();
     const fixed = fixupSvgString(svgString);
-    // Script tag should remain but have no contents.
-    t.equals(fixed.indexOf('<script></script>'), 207);
-    // The contents of the script tag (e.g. the alert) are no longer there.
-    t.equals(fixed.indexOf('stuff inside'), -1);
+    // Script tag should no longer exist.
+    t.equals(fixed.indexOf('<script></script>'), -1);
+
     t.end();
 });
 
@@ -95,8 +94,8 @@ test('fixupSvgString should empty script tags in onload', t => {
     const svgString = fs.readFileSync(filePath)
         .toString();
     const fixed = fixupSvgString(svgString);
-    // Script tag should remain but have no contents.
-    t.equals(fixed.indexOf('<script></script>'), 792);
+    // Script tag should not remain
+    t.equals(fixed.indexOf('<script></script>'), -1);
     t.end();
 });
 
@@ -106,7 +105,7 @@ test('fixupSvgString strips contents of metadata', t => {
         .toString();
     const fixed = fixupSvgString(svgString);
     // Metadata tag should still exist, it'll just be empty.
-    t.equals(fixed.indexOf('<metadata></metadata>'), 207);
+    t.equals(fixed.indexOf('<metadata></metadata>'), 113);
     // The contents of the metadata tag are gone.
     t.equals(fixed.indexOf('stuff inside'), -1);
     t.end();
@@ -117,8 +116,8 @@ test('fixupSvgString strips contents of metadata in onload', t => {
     const svgString = fs.readFileSync(filePath)
         .toString();
     const fixed = fixupSvgString(svgString);
-    // Metadata tag should still exist, it'll just be empty.
-    t.equals(fixed.indexOf('<metadata></metadata>'), 800);
+    // Metadata tag should not exist
+    t.equals(fixed.indexOf('<metadata></metadata>'), -1);
     t.end();
 });
 
@@ -137,7 +136,7 @@ test('fixupSvgString should correct invalid mime type', t => {
 });
 
 test('fixupSvgString shouldn\'t correct non-image tags', t => {
-    const dontFix = fixupSvgString('<text>data:img/png is not a mime type</text>');
+    const dontFix = fixupSvgString('<svg><text>data:img/png is not a mime type</text></svg>');
 
     t.notEqual(dontFix.indexOf('img/png'), -1);
     t.end();
@@ -151,8 +150,8 @@ test('fixupSvgString SHOULD correct hrefs that are NOT data links', t => {
 });
 
 test('fixupSvgString should NOT correct hrefs that ARE data links', t => {
-    const fixed = fixupSvgString('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:foo="http://www.w3.org/1999/xlink" xml:space="preserve"><image href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHBhdGggZmlsbD0iIzFBMzc2MSIgZD0iTTE3Ljc4IDI1LjY1Yy44OS0uODkgMi4zNS0uODkgMy4yNSAwTDQwIDQ0LjU5bDE4Ljk3LTE4Ljk1Yy44OS0uODkgMi4zNS0uODkgMy4yNCAwbDIuNDMgMi40M2MuODkuODkuODkgMi4zNSAwIDMuMjVMNDEuNjIgNTQuMzVjLS45Ljg5LTIuMzUuODktMy4yNSAwTDE1LjM1IDMxLjMzYy0uODktLjg5LS44OS0yLjM1IDAtMy4yNWwyLjQzLTIuNDN6Ii8+PC9zdmc+"/ ></svg>');
 
+    const fixed = fixupSvgString('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:foo="http://www.w3.org/1999/xlink" xml:space="preserve"><image href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PHBhdGggZmlsbD0iIzFBMzc2MSIgZD0iTTE3Ljc4IDI1LjY1Yy44OS0uODkgMi4zNS0uODkgMy4yNSAwTDQwIDQ0LjU5bDE4Ljk3LTE4Ljk1Yy44OS0uODkgMi4zNS0uODkgMy4yNCAwbDIuNDMgMi40M2MuODkuODkuODkgMi4zNSAwIDMuMjVMNDEuNjIgNTQuMzVjLS45Ljg5LTIuMzUuODktMy4yNSAwTDE1LjM1IDMxLjMzYy0uODktLjg5LS44OS0yLjM1IDAtMy4yNWwyLjQzLTIuNDN6Ii8+PC9zdmc+"/ ></svg>');
     t.notEqual(fixed.indexOf('data:'), -1);
     t.end();
 });

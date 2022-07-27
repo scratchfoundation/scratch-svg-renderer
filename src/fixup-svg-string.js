@@ -1,8 +1,11 @@
+const DOMPurify = require('isomorphic-dompurify');
+
 /**
  * Fixup svg string prior to parsing.
  * @param {!string} svgString String of the svg to fix.
  * @returns {!string} fixed svg that should be parseable.
  */
+
 module.exports = function (svgString) {
     // Add root svg namespace if it does not exist.
     const svgAttrs = svgString.match(/<svg [^>]*>/);
@@ -56,9 +59,14 @@ module.exports = function (svgString) {
 
     // Empty script tags and javascript executing
     svgString = svgString.replace(/<script[\s\S]*>[\s\S]*<\/script>/, '<script></script>');
-
-    // Remove hrefs that aren'ts data uris
-    svgString = svgString.replace(/href="(?!data).*"/, '');
+    svgString = DOMPurify.sanitize(svgString, {
+        // Use SVG profile (no HTML elements)
+        USE_PROFILES: {svg: true},
+        // Remove some tags that Scratch does not use.
+        FORBID_TAGS: ['a', 'audio', 'canvas', 'video'],
+        // Allow data URI in image tags (e.g. SVGs converted from bitmap)
+        ADD_DATA_URI_TAGS: ['image']
+    });
 
     return svgString;
 };
