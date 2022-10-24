@@ -1,7 +1,8 @@
 if [ -z "$BEFORE_DEPLOY_RAN" ]; then
   VPKG=$($(npm bin)/json -f package.json version)
-  echo "export RELEASE_VERSION=${VPKG}-prerelease.${RELEASE_TIMESTAMP}" >> $BASH_ENV
-  npm --no-git-tag-version version $RELEASE_VERSION
+  VERSION=${VPKG}-prerelease.${RELEASE_TIMESTAMP}
+  echo "export RELEASE_VERSION=${VERSION}" >> $BASH_ENV
+  npm --no-git-tag-version version $VERSION
   if [[ "$CIRCLE_BRANCH" == hotfix/* ]]; then # double brackets are important for matching the wildcard
     echo "export NPM_TAG=hotfix" >> $BASH_ENV
   fi
