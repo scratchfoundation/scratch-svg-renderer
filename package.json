@@ -47,7 +47,7 @@
     "scratch-render-fonts": "1.0.0-prerelease.20210401210003",
     "tap": "11.1.5",
     "webpack": "4.46.0",
-    "webpack-cli": "3.3.12",
+    "webpack-cli": "5.0.0",
     "webpack-dev-server": "3.11.2",
     "xmldom": "0.1.31"
   }
