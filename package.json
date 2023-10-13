@@ -40,7 +40,7 @@
     "eslint": "7.31.0",
     "eslint-config-scratch": "5.1.0",
     "eslint-plugin-import": "2.23.4",
-    "jsdom": "13.2.0",
+    "jsdom": "16.5.0",
     "json": "9.0.6",
     "lodash.defaultsdeep": "4.6.1",
     "mkdirp": "2.0.0",
