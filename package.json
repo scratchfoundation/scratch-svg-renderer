@@ -51,7 +51,7 @@
     "eslint-config-scratch": "9.0.8",
     "eslint-plugin-import": "2.29.1",
     "husky": "8.0.3",
-    "jsdom": "13.2.0",
+    "jsdom": "25.0.0",
     "json": "9.0.6",
     "mkdirp": "2.1.6",
     "rimraf": "3.0.2",
