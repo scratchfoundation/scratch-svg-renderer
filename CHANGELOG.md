@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.4.7](https://github.com/scratchfoundation/scratch-svg-renderer/compare/v2.4.6...v2.4.7) (2024-09-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency scratch-webpack-configuration to v1.5.1 ([879854e](https://github.com/scratchfoundation/scratch-svg-renderer/commit/879854e9db82b2742a9515245b4ded8f67cbfe8a))
+
 ## [2.4.6](https://github.com/scratchfoundation/scratch-svg-renderer/compare/v2.4.5...v2.4.6) (2024-09-11)
 
 
