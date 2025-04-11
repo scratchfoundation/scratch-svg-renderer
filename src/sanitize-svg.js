@@ -27,6 +27,24 @@ DOMPurify.addHook(
                 }
             }
         }
+
+        // Remove url(...) usages where the reference is external
+        if (currentNode && currentNode.attributes) {
+            for (let i = currentNode.attributes.length - 1; i >= 0; i--) {
+                const attr = currentNode.attributes[i];
+                const rawValue = attr.value || '';
+                const value = rawValue.toLowerCase().replace(/\s/g, '');
+        
+                const urlMatch = value.match(/url\((.+?)\)/);
+                if (urlMatch) {
+                    const ref = urlMatch[1].replace(/['"]/g, '');
+                    if (!ref.startsWith('#')) {
+                        currentNode.removeAttribute(attr.name);
+                    }
+                }
+            }
+        }
+    
         return currentNode;
     }
 );
@@ -37,13 +55,41 @@ DOMPurify.addHook(
         if (data.tagName === 'style') {
             const ast = parse(node.textContent);
             let isModified = false;
-            // Remove any @import rules as it could leak HTTP requests
+
             walk(ast, (astNode, item, list) => {
-                if (astNode.type === 'Atrule' && astNode.name === 'import') {
+                // @import rules
+                if (astNode.type === 'Atrule' && astNode.name.toLowerCase() === 'import') {
                     list.remove(item);
                     isModified = true;
                 }
+            
+                // Elements using url(...) for external resources
+                if (
+                    astNode.type === 'Declaration' &&
+                    astNode.value
+                ) {
+                    let shouldRemove = false;
+
+                    walk(astNode.value, (valueNode) => {
+                        if (
+                            valueNode.type === 'Url' ||
+                            (valueNode.type === 'Function' && valueNode.name.toLowerCase() === 'url')
+                        ) {
+                            const urlValue = (valueNode.value || '').toString().trim().replace(/['"]/g, '');
+
+                            if (!urlValue.startsWith('#')) {
+                                shouldRemove = true;
+                            }
+                        }
+                    });
+            
+                    if (shouldRemove) {
+                        list.remove(item);
+                        isModified = true;
+                    }
+                }
             });
+
             if (isModified) {
                 node.textContent = generate(ast);
             }

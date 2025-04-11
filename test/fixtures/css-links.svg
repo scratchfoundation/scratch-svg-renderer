@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <path mask="url(https://example.com/using-path-mask-attribute)"></path>
+    </defs>
+
+    <circle fill="url(https://example.com/using-circle-fill-attribute)" />
+    <circle style="fill: url(https://example.com/using-circle-fill-inline-style)" />
+
+    <rect stroke="url(https://example.com/using-rect-stroke-attribute)" />
+    <rect style="stroke: url(https://example.com/using-rect-fill-inline-style)" />
+
+    <style>
+        .url {
+            fill: url(https://example.com/using-fill-stylesheet);
+            stroke: url(https://example.com/using-stroke-stylesheet);
+            background-image: url(https://example.com/using-background-image-stylesheet);
+            shape-outside: url(https://example.com/using-shape-outside-stylesheet);
+            filter: url(https://example.com/using-filter-stylesheet);
+            mask-image: url(https://example.com/using-mask-image-stylesheet);
+        }
+    </style>
+    <rect class="url" />
+
+    <style>
+        @font-face {
+            font-family: 'Test Font';
+            src: url(https://example.com/using-font-face.woff) format(woff), url(https://example.com/using-font-face.woff2) format(woff2);
+        }
+        text {
+            font-family: 'Test Font';
+        }
+    </style>
+    <text>Use developer tools to observe several requests to example.com</text>
+</svg>
