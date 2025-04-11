@@ -70,12 +70,13 @@ DOMPurify.addHook(
                 ) {
                     let shouldRemove = false;
 
-                    walk(astNode.value, (valueNode) => {
+                    walk(astNode.value, valueNode => {
                         if (
                             valueNode.type === 'Url' ||
                             (valueNode.type === 'Function' && valueNode.name.toLowerCase() === 'url')
                         ) {
-                            const urlValue = (valueNode.value || '').toString().trim().replace(/['"]/g, '');
+                            const urlValue = (valueNode.value || '').toString().trim()
+                                .replace(/['"]/g, '');
 
                             if (!urlValue.startsWith('#')) {
                                 shouldRemove = true;
