@@ -1,5 +1,26 @@
 # scratch-svg-renderer
 
+## **⚠️ NOTICE: Repository Migration to Mono-Repo ⚠️**
+
+The Scratch Team has migrated the `scratch-svg-renderer` module into a new mono-repo,
+[`scratch-editor`](https://github.com/scratchfoundation/scratch-editor). This independent `scratch-svg-renderer`
+repository **will be archived**. Any new issues or pull requests should be opened in the mono-repo.
+
+The new mono-repo version of `scratch-svg-renderer` is published to the NPM registry as
+[`@scratch/scratch-svg-renderer`](https://www.npmjs.com/package/@scratch/scratch-svg-renderer).
+
+**Contributors:**
+
+* I would like to thank all past contributors for their work on this repository.
+* If you are aware of valuable issues or pull requests, please consider re-opening them in the mono-repo. If you do
+  so, please link the new issue or pull request to the original one in this repository to help others find it and to
+  reduce the chance of duplicate work.
+* We apologize for the inconvenience and greatly appreciate your help with this transition!
+
+For more information, see the [`scratch-editor` repository on GitHub](https://github.com/scratchfoundation/scratch-editor).
+
+## Overview
+
 [![CI/CD](https://github.com/scratchfoundation/scratch-svg-renderer/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/scratchfoundation/scratch-svg-renderer/actions/workflows/ci-cd.yml)
 
 A class built for importing SVGs into [Scratch](https://github.com/scratchfoundation/scratch-gui). Imports an SVG
