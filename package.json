@@ -52,7 +52,7 @@
     "eslint-plugin-import": "2.32.0",
     "husky": "8.0.3",
     "jsdom": "13.2.0",
-    "json": "9.0.6",
+    "json": "11.0.0",
     "mkdirp": "2.1.6",
     "rimraf": "3.0.2",
     "scratch-render-fonts": "1.0.252",
